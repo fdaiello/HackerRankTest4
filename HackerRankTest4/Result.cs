@@ -18,24 +18,143 @@ namespace HackerRankTest4
     }
     class Result
     {
-       /*
-        *  Beadth First Search: Shortest Reach:
-        *  
-        *  INPUT
-        *  n - number of nodes
-        *  m - number of vertices
-        *  edges - list of edges ( pairs of nodes that are conected )
-        *  s - starting node
-        *  
-        *  Obs: Consider each edge weight 6 units
-        *  
-        *  OUTPUT
-        *  List with the distance of all nodes to starting node - not considering starting node
-        *  
-        *  
-        */
+        /*
+         *  Beadth First Search: Shortest Reach:
+         *  
+         *  INPUT
+         *  n - number of nodes
+         *  m - number of vertices
+         *  edges - list of edges ( pairs of nodes that are conected )
+         *  s - starting node
+         *  
+         *  Obs: Consider each edge weight 6 units
+         *  
+         *  OUTPUT
+         *  List with the distance of all nodes to starting node - not considering starting node
+         *  
+         *  
+         */
 
-        public static List<int> bfs(int n, int m, List<List<int>> edges, int s)
+        public static List<int> Bfs(int n, int m, List<List<int>> edges, int s)
+        {
+
+            // Return list with depths
+            List<int> rList = new List<int>();
+
+            // Map for nodes
+            Dictionary<int, Node> map = new Dictionary<int, Node>();
+
+            // Build graph
+            for (int i = 0; i < edges.Count; i++)
+            {
+                int n1Value = edges[i][0];
+                int n2Value = edges[i][1];
+
+                // Are nodes already in graph?
+                Node node1;
+                if (map.ContainsKey(n1Value))
+                {
+                    node1 = map[n1Value];
+                }
+                else
+                {
+                    node1 = new Node(n1Value);
+                    map.Add(n1Value, node1);
+                }
+                Node node2;
+                if (map.ContainsKey(n2Value))
+                {
+                    node2 = map[n2Value];
+                }
+                else
+                {
+                    node2 = new Node(n2Value);
+                    map.Add(n2Value, node2);
+                }
+
+                // Link nodes - create edge
+                if (!node1.Edges.Contains(node2))
+                    node1.Edges.Add(node2);
+                if (!node2.Edges.Contains(node1))
+                    node2.Edges.Add(node1);
+            }
+
+            // Traverse all nodes
+            for (int j = 1; j <= n; j++)
+            {
+                // - except start node
+                if (j != s)
+                {
+                    // List of visited nodes
+                    List<int> visited = new List<int>();
+
+                    // start node
+                    Node root = map[s];
+
+                    // level count
+                    int level = 0;
+
+                    // found flag
+                    bool found = false;
+
+                    // Quee for each level
+                    Queue<Tuple<Node,int>> queue = new Queue<Tuple<Node,int>>();
+
+                    // Start inserting root node at Queue
+                    Tuple<Node, int> tuple = new Tuple<Node, int>(root,level);
+                    queue.Enqueue(tuple);
+
+                    // While Queue is not empty
+                    while ( queue.Any())
+                    {
+                        // Dequeue next node
+                        tuple = queue.Dequeue();
+                        Node node = tuple.Item1;
+
+                        // Check node value - to see if we found who we are looking for
+                        if ( node.Value == j)
+                        {
+                            found = true;
+                            level = tuple.Item2;
+                            break;
+                        }
+                        // Enqueue all child
+                        foreach( Node child in node.Edges)
+                        {
+                            if (! visited.Contains(child.Value))
+                            {
+                                queue.Enqueue(new Tuple<Node, int>(child, tuple.Item2+1));
+                                visited.Add(child.Value);
+                            }
+                        }
+                    }
+
+                    rList.Add(found?level:-1);
+                }
+            }
+
+
+            // Return list with dephts
+            return rList;
+        }
+
+        /*
+         *  DEEP First Search: Shortest Reach:
+         *  
+         *  INPUT
+         *  n - number of nodes
+         *  m - number of vertices
+         *  edges - list of edges ( pairs of nodes that are conected )
+         *  s - starting node
+         *  
+         *  Obs: Consider each edge weight 6 units
+         *  
+         *  OUTPUT
+         *  List with the distance of all nodes to starting node - not considering starting node
+         *  
+         *  
+         */
+        public static List<int> DeepFirstSearch(int n, int m, List<List<int>> edges, int s)
         {
 
             // Return list with depths

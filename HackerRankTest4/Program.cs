@@ -28,7 +28,22 @@ namespace HackerRankTest4
                 new() { 7,9}
             };
 
-            Console.WriteLine(String.Join(",", Result.bfs(n, m, edges, s)));
+            Console.WriteLine(String.Join(",", Result.Bfs(n, m, edges, s)));
+            Console.WriteLine("Expected: 1, 1, 2, -1, 2, 2, 3, 3");
+
+
+            edges = new()
+            {
+                new() { 1, 2 },
+                new() { 2, 3 },
+                new() { 2, 4 },
+                new() { 3, 6 },
+                new() { 3, 7 },
+                new() { 7, 8 },
+                new() { 7, 9 }
+            };
+
+            Console.WriteLine(String.Join(",", Result.Bfs(n, m, edges, s)));
             Console.WriteLine("Expected: 1, 2, 2, -1, 3, 3, 4, 4");
         }
     }
