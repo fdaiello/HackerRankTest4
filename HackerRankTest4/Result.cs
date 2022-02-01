@@ -33,12 +33,6 @@ namespace HackerRankTest4
         *  List with the distance of all nodes to starting node - not considering starting node
         *  
         *  
-        *  
-        *  
-        *  BUGS: 
-        *        1) dept counter
-        *        2) Not checking all nodes ( its checking only nodes in map, that is, in graph )
-        *  
         */
 
         public static List<int> bfs(int n, int m, List<List<int>> edges, int s)
@@ -86,19 +80,19 @@ namespace HackerRankTest4
             }
 
             // Traverse all nodes
-            foreach ( KeyValuePair<int, Node> kv in map)
+            for ( int j=1; j<= n; j++)
             {
                 // - except start node
-                if ( kv.Key != s)
+                if ( j != s)
                 {
                     // start node
                     Node pn = map[s];
 
                     // Get depth
-                    int depth = 0;
+                    int depth = 1;
                     List<int> visited = new List<int>();
 
-                    if ( GetDepth(pn, kv.Key, ref depth, visited))
+                    if ( GetDepth(pn, j, ref depth, visited))
                     {
                         rList.Add(depth);
                     }
@@ -116,27 +110,26 @@ namespace HackerRankTest4
         }
         static bool GetDepth(Node node, int value, ref int depth, List<int> visited)
         {
-            depth++;
 
-            if ( node.Value == value)
+            visited.Add(node.Value);
+
+            foreach ( Node chilld in node.Edges)
             {
-                return true;
-            }
-            else
-            {
-                foreach ( Node chilld in node.Edges)
+                if ( chilld.Value == value)
                 {
-                    if ( !visited.Contains(chilld.Value))
+                    return true;
+                }
+                else if ( !visited.Contains(chilld.Value))
+                {
+                    if (GetDepth(chilld, value, ref depth, visited))
                     {
-                        visited.Add(chilld.Value);
-                        if (GetDepth(chilld, value, ref depth, visited))
-                        {
-                            return true;
-                        }
+                        depth++;
+                        return true;
                     }
                 }
-                return false;
             }
+            return false;
+
         }
     }
 }
