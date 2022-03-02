@@ -9,7 +9,27 @@ namespace HackerRankTest4
         {
             TestBFS();
         }
+        static void TestCutTheTree()
+        {
+            List<int> nodes = new List<int> { 1, 2, 3, 4, 5, 6 };
+            List<List<int>> edges = new List<List<int>>
+            {
+                new List<int> { 1, 2 },
+                new List<int> { 1, 3 },
+                new List<int> { 2, 6 },
+                new List<int> { 3, 4 },
+                new List<int> { 3, 5 },
+            };
 
+            Console.WriteLine(Result.cutTheTree(nodes, edges));
+            Console.WriteLine("Expected: 3");
+        }
+        static void TestComponentsInGraph()
+        {
+            List<List<int>> array = new List<List<int>>{ new List<int>{ 1, 5 }, new List<int> { 1, 6 }, new List<int> { 2, 4 } };
+            Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
+            Console.WriteLine("Expected: 2, 3");
+        }
         static void TestBFS()
         {
             int n = 9;
@@ -28,8 +48,8 @@ namespace HackerRankTest4
                 new() { 7,9}
             };
 
-            Console.WriteLine(String.Join(",", Result.Bfs(n, m, edges, s)));
-            Console.WriteLine("Expected: 1, 1, 2, -1, 2, 2, 3, 3");
+            Console.WriteLine(String.Join(", ", Result.Bfs(n, m, edges, s)));
+            Console.WriteLine("Expected:\n6, 6, 12, -1, 12, 12, 18, 18\n");
 
 
             edges = new()
@@ -43,8 +63,23 @@ namespace HackerRankTest4
                 new() { 7, 9 }
             };
 
-            Console.WriteLine(String.Join(",", Result.Bfs(n, m, edges, s)));
-            Console.WriteLine("Expected: 1, 2, 2, -1, 3, 3, 4, 4");
+            Console.WriteLine(String.Join(", ", Result.Bfs(n, m, edges, s)));
+            Console.WriteLine("Expected:\n6, 12, 12, -1, 18, 18, 24, 24\n");
+
+
+
+            edges = new()
+            {
+                new() { 2, 3 },
+                new() { 2, 4 },
+                new() { 3, 4 },
+                new() { 4, 5 },
+                new() { 5, 6 },
+                new() { 6, 4 },
+            };
+
+            Console.WriteLine(String.Join(", ", Result.Bfs(6, 5, edges, 2)));
+            Console.WriteLine("Expected:\n-1, 6, 6, 12, 12\n");
         }
     }
 }
