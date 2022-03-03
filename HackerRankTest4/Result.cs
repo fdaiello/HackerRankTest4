@@ -21,16 +21,223 @@ namespace HackerRankTest4
     {
         public static int cutTheTree(List<int> data, List<List<int>> edges)
         {
+            // Build adjancency list for graph
+            List<int>[] graph = new List<int>[data.Count];
+            for ( int i =0; i<graph.Length; i++)
+            {
+                graph[i] = new List<int>();
+            }
+
+            foreach ( var edge in edges)
+            {
+                graph[edge[0]-1].Add(edge[1]);
+                graph[edge[1]-1].Add(edge[0]);
+            }
+
+            // Get any leaf
+            int leaf = graph.Where(p => p.Count == 1).FirstOrDefault()[0]+1;
+
+            // Get total sum of all tree
+            int tSum = data.Sum();
+            int sum1 = 0;
+            int sum2 = 0;
+
+            // Traverse from leaf summing values
+            Queue<int> q = new Queue<int>();
+            HashSet<int> visited = new HashSet<int>();
+            q.Enqueue(leaf);
+            visited.Add(leaf);
+
+            while ( q.Count > 0)
+            {
+                int node = q.Dequeue();
+
+                // Compare acumulated sum to total sum of tree
+                sum1 += data[node - 1];
+                if ( sum1 >= tSum / 2)
+                {
+                    return Math.Min(sum1 - tSum / 2, sum2 - tSum / 2);
+                }
+                sum2 = sum1;
+
+                foreach ( int neighboor in graph[node-1])
+                {
+                    if (!visited.Contains(neighboor))
+                    {
+                        q.Enqueue(neighboor);
+                        visited.Add(neighboor);
+                    }
+                }
+            }
 
             return -1;
         }
         public static List<int> componentsInGraph(List<List<int>> gb)
         {
+            // Get max node number from list of edges
+            int nodesCount = Math.Max(gb.Select(p => p[0]).Max(), gb.Select(p => p[1]).Max());
+
+            // Create Adjancency list as array of list of integers
+            List<int>[] al = new List<int>[nodesCount];
+            for ( int i=0; i<al.Length; i++)
+            {
+                al[i] = new List<int>();
+            }
+
+            // Fill Adjancency list - as this is a undirected graph, for each edge, fill both directions
+            foreach ( List<int> edge in gb)
+            {
+                al[edge[0] - 1].Add(edge[1]);
+                al[edge[1] - 1].Add(edge[0]);
+            }
+
+
+
+
+
             return new List<int>();
+
+        }
+        public static List<int> componentsInGraph1(List<List<int>> gb)
+        {
+            // Create a list with all nodes
+            List<int> nodes = new List<int>();
+            foreach ( List<int> edge in gb)
+            {
+                if (!nodes.Contains(edge[0]))
+                    nodes.Add(edge[0]);
+                if (!nodes.Contains(edge[1]))
+                    nodes.Add(edge[1]);
+            }
+
+            // Visited nodes
+            HashSet<int> visited = new HashSet<int>();
+
+            // List with connected nodes
+            List<List<int>> connectedNodes = new List<List<int>>();
+            int c = 0;
+
+            // For each Node in graph
+            foreach ( int node in nodes)
+            {
+                // If it was not visited yet
+                if (!visited.Contains(node))
+                {
+                    // Add this nodo to connected List
+                    connectedNodes.Add(new List<int>());
+
+                    // Traverse the graph starting at this node
+                    Queue<int> q = new Queue<int>();
+                    q.Enqueue(node);
+                    visited.Add(node);
+
+                    while (q.Count > 0)
+                    {
+                        int currentNode = q.Dequeue();
+                        connectedNodes[c].Add(currentNode);
+
+                        foreach ( var edge in gb.Where(p=>p[0]==currentNode))
+                        {
+                            if (!visited.Contains(edge[1]))
+                            {
+                                q.Enqueue(edge[1]);
+                                visited.Add(edge[1]);
+                            }
+                        }
+                        foreach (var edge in gb.Where(p => p[1] == currentNode))
+                        {
+                            if (!visited.Contains(edge[0]))
+                            {
+                                q.Enqueue(edge[0]);
+                                visited.Add(edge[0]);
+                            }
+                        }
+                    }
+                    c++;
+                }
+            }
+
+            var list = connectedNodes.Select(p => p.Count()).Where(p => p > 1).OrderBy(p => p).ToList();
+            var uniqueList = new List<int> { list[0], list[list.Count - 1] };
+            return uniqueList.ToList();
+        }
+        // This is the best solution!!!!
+        public static List<int> Bfs(int n, int m, List<List<int>> edges, int s)
+        {
+            if (edges.Count == 0)
+                return new List<int>();
+
+            // Map for nodes
+            Dictionary<int, Node> map = new Dictionary<int, Node>();
+
+            // Build graph
+            for (int i = 0; i < edges.Count; i++)
+            {
+                int n1Value = edges[i][0];
+                int n2Value = edges[i][1];
+
+                // Are nodes already in graph?
+                Node node1;
+                if (map.ContainsKey(n1Value))
+                {
+                    node1 = map[n1Value];
+                }
+                else
+                {
+                    node1 = new Node(n1Value);
+                    map.Add(n1Value, node1);
+                }
+                Node node2;
+                if (map.ContainsKey(n2Value))
+                {
+                    node2 = map[n2Value];
+                }
+                else
+                {
+                    node2 = new Node(n2Value);
+                    map.Add(n2Value, node2);
+                }
+
+                // Link nodes - create edge
+                if (!node1.Edges.Contains(node2))
+                    node1.Edges.Add(node2);
+                if (!node2.Edges.Contains(node1))
+                    node2.Edges.Add(node1);
+            }
+
+            int[] nodes = new int[n + 1];
+            for (int i = 1; i <= n; i++)
+                nodes[i] = -1;
+            nodes[s] = 0;
+
+            if (map.ContainsKey(s))
+            {
+                Queue<Tuple<Node, int>> q = new Queue<Tuple<Node, int>>();
+                q.Enqueue(new Tuple<Node, int>(map[s], 0));
+
+                while (q.Count > 0)
+                {
+                    Tuple<Node, int> nq = q.Dequeue();
+
+
+                    foreach (Node child in nq.Item1.Edges)
+                    {
+                        if (nodes[child.Value] == -1)
+                        {
+                            nodes[child.Value] = nq.Item2 + 1;
+                            q.Enqueue(new Tuple<Node, int>(child, nq.Item2 + 1));
+                        }
+                    }
+                }
+            }
+
+            // Return list with dephts
+            return nodes.Where(p => p != 0).Select(p => p == -1 ? -1 : p * 6).ToList();
         }
 
         /*
          *  Beadth First Search: Shortest Reach:
+         *  
          *  
          *  INPUT
          *  n - number of nodes
@@ -45,7 +252,7 @@ namespace HackerRankTest4
          *  
          *  
          */
-        public static List<int> Bfs(int n, int m, List<List<int>> edges, int s)
+        public static List<int> Bfs4(int n, int m, List<List<int>> edges, int s)
         {
 
             int[] distances = new int[n + 1];
@@ -69,7 +276,7 @@ namespace HackerRankTest4
                     if (distances[edge[1]] == -1 )
                     {
                         queue.Enqueue(new int[] { edge[1], node[1] + 1 });
-                        distances[edge[1]] = node[1] + 1;
+                        distances[edge[1]] = (node[1] + 1)*6;
                     }
                 }
                 foreach (List<int> edge in edges.Where(p => p[1] == node[0]))
@@ -77,12 +284,12 @@ namespace HackerRankTest4
                     if (distances[edge[0]] == -1 )
                     {
                         queue.Enqueue(new int[] { edge[0], node[1] + 1 });
-                        distances[edge[0]] = node[1] + 1;
+                        distances[edge[0]] = (node[1] + 1)*6;
                     }
                 }
             }
 
-            return distances.Where(p => p != 0).Select(p => p == -1 ? p : p * 6).ToList();
+            return distances.Where(p => p != 0).ToList();
 
         }
         public static List<int> Bfs3(int n, int m, List<List<int>> edges, int s)
@@ -124,73 +331,6 @@ namespace HackerRankTest4
 
             return distances.Where(p=>p!=0).Select(p=>p==-1?p:p*6).ToList();
 
-        }
-        public static List<int> Bfs2(int n, int m, List<List<int>> edges, int s)
-        {
-
-            // Map for nodes
-            Dictionary<int, Node> map = new Dictionary<int, Node>();
-
-            // Build graph
-            for (int i = 0; i < edges.Count; i++)
-            {
-                int n1Value = edges[i][0];
-                int n2Value = edges[i][1];
-
-                // Are nodes already in graph?
-                Node node1;
-                if (map.ContainsKey(n1Value))
-                {
-                    node1 = map[n1Value];
-                }
-                else
-                {
-                    node1 = new Node(n1Value);
-                    map.Add(n1Value, node1);
-                }
-                Node node2;
-                if (map.ContainsKey(n2Value))
-                {
-                    node2 = map[n2Value];
-                }
-                else
-                {
-                    node2 = new Node(n2Value);
-                    map.Add(n2Value, node2);
-                }
-
-                // Link nodes - create edge
-                if (!node1.Edges.Contains(node2))
-                    node1.Edges.Add(node2);
-                if (!node2.Edges.Contains(node1))
-                    node2.Edges.Add(node1);
-            }
-
-            int[] nodes = new int[n + 1];
-            for ( int i=1; i<=n; i++)
-                nodes[i] = -1;
-            nodes[s] = 0;
-
-            Queue<Tuple<Node, int>> q = new Queue<Tuple<Node, int>>();
-            q.Enqueue(new Tuple<Node,int>(map[s],0));
-
-            while ( q.Count > 0)
-            {
-                Tuple<Node,int> nq = q.Dequeue();
-
-
-                foreach(Node child in nq.Item1.Edges)
-                {
-                    if (nodes[child.Value] == -1)
-                    {
-                        nodes[child.Value] = nq.Item2 + 1;
-                        q.Enqueue(new Tuple<Node, int>(child, nq.Item2 + 1));
-                    }
-                }
-            }
-
-            // Return list with dephts
-            return nodes.Where(p=>p!=0).Select(p=>p==-1?-1:p*6).ToList();
         }
         public static List<int> Bfs1(int n, int m, List<List<int>> edges, int s)
         {

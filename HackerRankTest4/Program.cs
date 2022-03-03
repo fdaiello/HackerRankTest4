@@ -7,8 +7,9 @@ namespace HackerRankTest4
     {
         static void Main(string[] args)
         {
-            TestBFS();
+            TestComponentsInGraph();
         }
+
         static void TestCutTheTree()
         {
             List<int> nodes = new List<int> { 1, 2, 3, 4, 5, 6 };
@@ -24,12 +25,53 @@ namespace HackerRankTest4
             Console.WriteLine(Result.cutTheTree(nodes, edges));
             Console.WriteLine("Expected: 3");
         }
+
         static void TestComponentsInGraph()
         {
-            List<List<int>> array = new List<List<int>>{ new List<int>{ 1, 5 }, new List<int> { 1, 6 }, new List<int> { 2, 4 } };
+            List<List<int>> array = new List<List<int>>
+            { 
+                new List<int> { 1, 5 },
+                new List<int> { 1, 6 },
+                new List<int> { 2, 4 }
+            };
+
             Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
             Console.WriteLine("Expected: 2, 3");
+
+            array = new List<List<int>> { 
+                new List<int> { 1, 5 },
+                new List<int> { 1, 6 },
+                new List<int> { 5, 7 },
+                new List<int> { 2, 4 }
+            };
+
+            Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
+            Console.WriteLine("Expected: 2, 4");
+
+            array = new List<List<int>> {
+                new List<int> { 1, 6 },
+                new List<int> { 2, 7 },
+                new List<int> { 3, 8 },
+                new List<int> { 4, 9 },
+                new List<int> { 6, 2 },
+                new List<int> { 9, 4 }
+            };
+
+            Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
+            Console.WriteLine("Expected: 2, 4");
+
+
+            array = new List<List<int>> {
+                new List<int> { 1, 6 },
+                new List<int> { 2, 7 },
+                new List<int> { 3, 8 },
+            };
+
+            Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
+            Console.WriteLine("Expected: 2");
+
         }
+
         static void TestBFS()
         {
             int n = 9;
