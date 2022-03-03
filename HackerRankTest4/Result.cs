@@ -91,11 +91,44 @@ namespace HackerRankTest4
                 al[edge[1] - 1].Add(edge[0]);
             }
 
+            // List with connected nodes
+            List<List<int>> connectedNodes = new List<List<int>>();
 
+            // Traverse Graph using Adjancency List
+            Queue<int> q = new Queue<int>();
+            HashSet<int> visited = new HashSet<int>();
+            int c = 0;
 
+            // Start with each node at adjacency List
+            for ( int startNode=1; startNode<=al.Length; startNode++)
+            {
+                if (!visited.Contains(startNode) && al[startNode-1].Count>0)
+                {
+                    visited.Add(startNode);
+                    q.Enqueue(startNode);
+                    connectedNodes.Add(new List<int> {});
 
+                    while (q.Count > 0)
+                    {
+                        int thisNode = q.Dequeue();
+                        connectedNodes[c].Add(thisNode);
+                        foreach ( int neighbor in al[thisNode - 1])
+                        {
+                            if (!visited.Contains(neighbor))
+                            {
+                                visited.Add(neighbor);
+                                q.Enqueue(neighbor);
+                            }
+                        }
+                    }
+                    c++;
+                }
+            }
 
-            return new List<int>();
+            int minGroup = connectedNodes.Select(p=>p.Count).Min();
+            int maxGroup = connectedNodes.Select(p => p.Count).Max();
+
+            return new List<int>() { minGroup, maxGroup };
 
         }
         public static List<int> componentsInGraph1(List<List<int>> gb)

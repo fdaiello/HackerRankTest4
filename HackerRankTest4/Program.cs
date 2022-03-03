@@ -68,7 +68,7 @@ namespace HackerRankTest4
             };
 
             Console.WriteLine(String.Join(",", Result.componentsInGraph(array)));
-            Console.WriteLine("Expected: 2");
+            Console.WriteLine("Expected: 2, 2");
 
         }
 
