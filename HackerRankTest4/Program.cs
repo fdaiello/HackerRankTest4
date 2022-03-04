@@ -7,9 +7,26 @@ namespace HackerRankTest4
     {
         static void Main(string[] args)
         {
-            TestComponentsInGraph();
+            TestCutTheTree();
         }
 
+        public static void TestgetMinSubtreeSumDifference()
+        {
+            int[] vertex = { 4, 2, 1, 6, 3, 5, 2 };
+
+            int[,] edges =
+            {
+                { 0, 1 },
+                { 0, 2 },
+                { 0, 3 },
+                { 2, 4 },
+                { 2, 5 },
+                { 3, 6 }
+            };
+            int N = vertex.Length;
+
+            Console.WriteLine(Graph.getMinSubtreeSumDifference(vertex, edges, N));
+        }
         static void TestCutTheTree()
         {
             List<int> nodes = new List<int> { 1, 2, 3, 4, 5, 6 };
@@ -24,6 +41,37 @@ namespace HackerRankTest4
 
             Console.WriteLine(Result.cutTheTree(nodes, edges));
             Console.WriteLine("Expected: 3");
+
+
+            nodes = new List<int> { 100, 200, 100, 500, 100, 600 };
+            edges = new List<List<int>>
+            {
+                new List<int> { 1, 2 },
+                new List<int> { 2, 3 },
+                new List<int> { 2, 5 },
+                new List<int> { 4, 5 },
+                new List<int> { 5, 6 },
+            };
+
+            Console.WriteLine(Result.cutTheTree(nodes, edges));
+            Console.WriteLine("Expected: 400");
+
+
+            nodes = new List<int>{ 4, 2, 1, 6, 3, 5, 2 };
+
+            edges = new List<List<int>>
+            {
+                new List<int> { 1, 2 },
+                new List<int> { 1, 3 },
+                new List<int> { 1, 4 },
+                new List<int> { 3, 5 },
+                new List<int> { 3, 6 },
+                new List<int> { 4, 7 }
+            };
+
+            Console.WriteLine(Result.cutTheTree(nodes, edges));
+            Console.WriteLine("Expected: 5");
+
         }
 
         static void TestComponentsInGraph()

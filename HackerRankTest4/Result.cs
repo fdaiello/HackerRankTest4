@@ -19,7 +19,163 @@ namespace HackerRankTest4
 
     class Result
     {
+        /*
+         *  Cut the Tree
+         *  
+         *  There is an undirected tree where each vertex is numbered from 1 to n, and each contains a data value.
+         *  The sum of a tree is the sum of all its nodes' data values.
+         *  If an edge is cut, two smaller trees are formed.
+         *  The difference between two trees is the absolute value of the difference in their sums.
+         *  
+         *  Given a tree, determine wich edge to cut so that the resulting trees have a minimal difference between them,
+         *  Then return that difference.
+         *  
+         */
+        // Deep First Search from root ( first node )
+        // Array with recursive cumulative sum for each node and its children
         public static int cutTheTree(List<int> data, List<List<int>> edges)
+        {
+            // Build adjancency list for graph
+            List<int>[] graph = new List<int>[data.Count];
+            for (int i = 0; i < graph.Length; i++)
+            {
+                graph[i] = new List<int>();
+            }
+
+            foreach (var edge in edges)
+            {
+                graph[edge[0] - 1].Add(edge[1]);
+                graph[edge[1] - 1].Add(edge[0]);
+            }
+
+            // Root node - assume its the first node from first edge
+            int root = edges[0][0];
+
+            // Get total sum of all tree
+            int tSum = data.Sum();
+
+            // min differece found up to each node
+            int minDiff = int.MaxValue;
+
+            // array with cumulative sum of each node and children value
+            int[] sum = new int[data.Count];
+
+            // start Deep First Search from first node - assume this is the root and has no parent
+            Dfs(graph, data, root, -1, tSum, ref sum, ref minDiff);
+
+            // Return compared minDiff for each step
+            return minDiff;
+        }
+
+        // Recursive Deep First Search from given node
+        public static void Dfs ( List<int>[] graph, List<int> data, int start, int parent, int tSum, ref int[] sum, ref int minDiff)
+        {
+            // Initialize the sum of the tree begining at this node with this node value
+            sum[start - 1] = data[start - 1];
+
+            // for all connected nodes
+            foreach( int node in graph[start - 1])
+            {
+                // Excet for its own parent
+                if ( node != parent)
+                {
+                    // Recursive call DFS for given node
+                    Dfs(graph, data, node, start, tSum, ref sum, ref minDiff);
+
+                    // And acumulate child value to parent value
+                    sum[start - 1] += sum[node-1];
+                }
+            }
+
+            // Check sum value for the subtree starting at this node: sum[start-1]
+            // Get the absolute difference between this subtree and the rest. 
+            // Compare and save minDiff
+            minDiff = Math.Min(minDiff, Math.Abs(sum[start - 1] - (tSum - sum[start - 1])));
+
+        }
+
+        // Brute force approach - works but takes great time complexity
+        public static int cutTheTree1(List<int> data, List<List<int>> edges)
+        {
+            // Build adjancency list for graph
+            List<int>[] graph = new List<int>[data.Count];
+            for (int i = 0; i < graph.Length; i++)
+            {
+                graph[i] = new List<int>();
+            }
+
+            foreach (var edge in edges)
+            {
+                graph[edge[0] - 1].Add(edge[1]);
+                graph[edge[1] - 1].Add(edge[0]);
+            }
+
+            // Get total sum of all tree
+            int tSum = data.Sum();
+
+            // Save min difference
+            int minDiff = int.MaxValue;
+
+            // For each edge
+            foreach(var edge in edges)
+            {
+                // Get sum of tree without this edge
+                int thisSum = SumTree(data, graph, edge, edge[0]);
+
+                // Update minDiff
+                minDiff = Math.Min(minDiff, Math.Abs(thisSum - (tSum-thisSum)));
+
+            }
+
+
+            // Return min Difference
+            return minDiff;
+        }
+        public static int SumTree(List<int> data, List<int>[] graph, List<int> cuttedEdge, int start)
+        {
+            // Traverse graph from start, excluding cuttedNode
+            Stack<int> s = new Stack<int>();
+            HashSet<int> visited = new HashSet<int>();
+            s.Push(start);
+            visited.Add(start);
+            int sum = 0;
+
+            while (s.Count > 0)
+            {
+                int node = s.Pop();
+                sum += data[node-1];
+
+                foreach (int neighboor in graph[node - 1])
+                {
+                    if (cuttedEdge[0]!=node || cuttedEdge[1] != neighboor)
+                    {
+                        if (!visited.Contains(neighboor))
+                        {
+                            s.Push(neighboor);
+                            visited.Add(neighboor);
+                        }
+                    }
+                }
+            }
+
+            return sum;
+        }
+
+        public static int cutTheTree3(List<int> data, List<List<int>> edges)
+        {
+            int[,] e = new int[edges.Count, 2];
+
+            for (int i = 0; i < edges.Count; i++)
+            {
+                e[i, 0] = edges[i][0]-1;
+                e[i, 1] = edges[i][1]-1;
+            }
+
+            return Graph.getMinSubtreeSumDifference(data.ToArray(), e, data.Count);
+        }
+
+        // Deep First Search
+        public static int cutTheTree2(List<int> data, List<List<int>> edges)
         {
             // Build adjancency list for graph
             List<int>[] graph = new List<int>[data.Count];
@@ -43,20 +199,20 @@ namespace HackerRankTest4
             int sum2 = 0;
 
             // Traverse from leaf summing values
-            Queue<int> q = new Queue<int>();
+            Stack<int> s = new Stack<int>();
             HashSet<int> visited = new HashSet<int>();
-            q.Enqueue(leaf);
+            s.Push(leaf);
             visited.Add(leaf);
 
-            while ( q.Count > 0)
+            while ( s.Count > 0)
             {
-                int node = q.Dequeue();
+                int node = s.Pop();
 
                 // Compare acumulated sum to total sum of tree
                 sum1 += data[node - 1];
                 if ( sum1 >= tSum / 2)
                 {
-                    return Math.Min(sum1 - tSum / 2, sum2 - tSum / 2);
+                    return Math.Abs(Math.Min(sum1 - tSum / 2, sum2 - tSum / 2));
                 }
                 sum2 = sum1;
 
@@ -64,7 +220,7 @@ namespace HackerRankTest4
                 {
                     if (!visited.Contains(neighboor))
                     {
-                        q.Enqueue(neighboor);
+                        s.Push(neighboor);
                         visited.Add(neighboor);
                     }
                 }
