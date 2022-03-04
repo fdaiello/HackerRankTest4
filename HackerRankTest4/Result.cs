@@ -6,19 +6,9 @@ using System.Threading.Tasks;
 
 namespace HackerRankTest4
 {
-    class Node
-    {
-        public Node(int value)
-        {
-            Value = value;
-            Edges = new List<Node>();
-        }
-        public int Value { get; set; }
-        public List<Node> Edges { get; set; }
-    }
-
     class Result
     {
+        #region CutTheTree
         /*
          *  Cut the Tree
          *  
@@ -31,8 +21,10 @@ namespace HackerRankTest4
          *  Then return that difference.
          *  
          */
+
         // Deep First Search from root ( first node )
         // Array with recursive cumulative sum for each node and its children
+        // This is the optimized solution!
         public static int cutTheTree(List<int> data, List<List<int>> edges)
         {
             // Build adjancency list for graph
@@ -68,6 +60,7 @@ namespace HackerRankTest4
         }
 
         // Recursive Deep First Search from given node
+        // This algorithim didn't work. It just traverse summing values but cannot consider subtrees correctly
         public static void Dfs ( List<int>[] graph, List<int> data, int start, int parent, int tSum, ref int[] sum, ref int minDiff)
         {
             // Initialize the sum of the tree begining at this node with this node value
@@ -95,6 +88,8 @@ namespace HackerRankTest4
         }
 
         // Brute force approach - works but takes great time complexity
+        //   cutTheTree1
+        //       SumTree ( for each cutted edge )
         public static int cutTheTree1(List<int> data, List<List<int>> edges)
         {
             // Build adjancency list for graph
@@ -161,6 +156,7 @@ namespace HackerRankTest4
             return sum;
         }
 
+        // This was just an encapsulating call made to test the algorithim gotten from Geeks for Geeks.
         public static int cutTheTree3(List<int> data, List<List<int>> edges)
         {
             int[,] e = new int[edges.Count, 2];
@@ -171,10 +167,11 @@ namespace HackerRankTest4
                 e[i, 1] = edges[i][1]-1;
             }
 
+            // Geeks for Geeks ( aashish1995 ) algorithim.
             return Graph.getMinSubtreeSumDifference(data.ToArray(), e, data.Count);
         }
 
-        // Deep First Search
+        // This was my first Trial. Works just in some cases. Cannot find subtrees correctly
         public static int cutTheTree2(List<int> data, List<List<int>> edges)
         {
             // Build adjancency list for graph
@@ -228,6 +225,15 @@ namespace HackerRankTest4
 
             return -1;
         }
+        #endregion
+        #region ComponentsInGraph
+        /*
+         *  Given a Graph formed by a list of edges
+         *  Return a list with 2 elements, the size of the small and the size of the greatest segment of the graph
+         *  Consider a segment a set of linked nodes. Do not consider unconnected nodes ( single nodes ).
+         *  
+         */
+        // Optimized version
         public static List<int> componentsInGraph(List<List<int>> gb)
         {
             // Get max node number from list of edges
@@ -287,6 +293,8 @@ namespace HackerRankTest4
             return new List<int>() { minGroup, maxGroup };
 
         }
+        // This version works but its not fully optimized
+        // Instead of building the Adjacency List its filters edges directly in gb edges list
         public static List<int> componentsInGraph1(List<List<int>> gb)
         {
             // Create a list with all nodes
@@ -333,6 +341,7 @@ namespace HackerRankTest4
                                 visited.Add(edge[1]);
                             }
                         }
+                        // twice ... as its not a directed graph, each edge means there is a two way connection
                         foreach (var edge in gb.Where(p => p[1] == currentNode))
                         {
                             if (!visited.Contains(edge[0]))
@@ -350,7 +359,30 @@ namespace HackerRankTest4
             var uniqueList = new List<int> { list[0], list[list.Count - 1] };
             return uniqueList.ToList();
         }
+        #endregion
+        #region BeadthFirstSearch_ShortestReach
+        /*
+         *  Beadth First Search: Shortest Reach:
+         *  
+         *  
+         *  INPUT
+         *  n - number of nodes
+         *  m - number of vertices
+         *  edges - list of edges ( pairs of nodes that are conected )
+         *  s - starting node
+         *  
+         *  Obs: Consider each edge weight 6 units
+         *  
+         *  OUTPUT
+         *  List with the distance of all nodes to starting node - not considering starting node
+         *  
+         *  
+         */
+
         // This is the best solution!!!!
+        // It uses the Node Class ( see bellow ) to represent the graph
+        // Later I found to be easier to build the adjacency list. This version takes more code but does not impact in performace
+
         public static List<int> Bfs(int n, int m, List<List<int>> edges, int s)
         {
             if (edges.Count == 0)
@@ -424,23 +456,7 @@ namespace HackerRankTest4
             return nodes.Where(p => p != 0).Select(p => p == -1 ? -1 : p * 6).ToList();
         }
 
-        /*
-         *  Beadth First Search: Shortest Reach:
-         *  
-         *  
-         *  INPUT
-         *  n - number of nodes
-         *  m - number of vertices
-         *  edges - list of edges ( pairs of nodes that are conected )
-         *  s - starting node
-         *  
-         *  Obs: Consider each edge weight 6 units
-         *  
-         *  OUTPUT
-         *  List with the distance of all nodes to starting node - not considering starting node
-         *  
-         *  
-         */
+        // This version works but does not have the best performace, as it querys directly at edges list each time to find neighbors nodes
         public static List<int> Bfs4(int n, int m, List<List<int>> edges, int s)
         {
 
@@ -481,6 +497,7 @@ namespace HackerRankTest4
             return distances.Where(p => p != 0).ToList();
 
         }
+        // This is very similar to Bfs4. Just let to multiply edge value ( 6 by definition ) at the end
         public static List<int> Bfs3(int n, int m, List<List<int>> edges, int s)
         {
 
@@ -521,6 +538,7 @@ namespace HackerRankTest4
             return distances.Where(p=>p!=0).Select(p=>p==-1?p:p*6).ToList();
 
         }
+        // This also works fine, but uses the Node class to build the graph representation instead of building the Adjacency List
         public static List<int> Bfs1(int n, int m, List<List<int>> edges, int s)
         {
 
@@ -623,7 +641,18 @@ namespace HackerRankTest4
             // Return list with dephts
             return rList;
         }
-
+        class Node
+        {
+            public Node(int value)
+            {
+                Value = value;
+                Edges = new List<Node>();
+            }
+            public int Value { get; set; }
+            public List<Node> Edges { get; set; }
+        }
+        #endregion
+        #region DeepFirstSearch_ShortestReach
         /*
          *  DEEP First Search: Shortest Reach:
          *  
@@ -640,6 +669,8 @@ namespace HackerRankTest4
          *  
          *  
          */
+
+        // This version calls GetDepth for each node
         public static List<int> DeepFirstSearch(int n, int m, List<List<int>> edges, int s)
         {
 
@@ -736,5 +767,6 @@ namespace HackerRankTest4
             return false;
 
         }
+        #endregion
     }
 }
